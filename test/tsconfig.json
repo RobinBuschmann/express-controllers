@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "pretty": true,
+    "lib": [
+      "es2015"
+    ]
+  },
+  "include": [
+    "controllers/**/*",
+    "specs/**/*"
+  ],
+  "files": [
+    "app.ts",
+    "../lib/declarations/express-extensions.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "documentation"
+  ]
+}
