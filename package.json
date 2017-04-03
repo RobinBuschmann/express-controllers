@@ -4,9 +4,10 @@
   "description": "Middleware for resolving controllers and handling versions",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
     "build-scripts": "tsc --project build",
+    "build": "tsc && npm run generate",
     "build-tests": "tsc --project test",
+    "remove-d": "rm -rf **/*.d.ts",
     "generate": "node ./build/declaration-generator.js",
     "test": "mocha test/specs/**/*.js",
     "lint": "tslint .",
