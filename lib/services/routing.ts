@@ -1,37 +1,28 @@
 import * as fs from 'fs';
-import {Router} from 'express';
+import {Router, Request, Response, NextFunction} from 'express';
 import * as pluralize from 'pluralize';
-import {IVersioningDefaultOptions} from "../interfaces/IVersioningDefaultOptions";
-import {IInternalVersioningOptions} from "../interfaces/IInternalVersioningOptions";
-import {IVersioningOptions} from "../interfaces/IVersioningOptions";
-import {getRouteHandlerOptions} from "./controller";
-
-const defaultOptions: IVersioningDefaultOptions = {
-
-  controllerPattern: /^(.*?)Controller$/,
-  versionPattern: /^(v\d.*)$/,
-  debug: false,
-  abstractDir: 'abstract'
-};
+import {IInternalControllerOptions} from "../interfaces/IInternalControllerOptions";
+import {getRouteHandlerOptions, tryGuessingRouteHandlerOptionsByKeys} from "./controller";
+import {IRouteHandlerOption} from "../interfaces/IRouteHandlerOption";
+import {IRouteHandlerOptions} from "../interfaces/IRouteHandlerOptions";
 
 export const VERSION_PLACEHOLDER = '__version__';
 
-export function createRouter(options: IVersioningOptions): Router {
+export function createRouter(options: IInternalControllerOptions): Router {
 
-  const _options = prepareOptions(options);
   const router = Router();
-  const data = resolve(_options);
+  const data = resolve(options);
 
-  return defineRoutes(router, _options, data);
+  return defineRoutes(router, options, data);
 }
 
-function resolve(options: IInternalVersioningOptions,
+function resolve(options: IInternalControllerOptions,
                  path: string = options.path,
                  controllers: any = {},
                  route: string = '',
                  routes: string[] = []): {controllers: any, routes: string[]} {
 
-  let parentVersion;
+  let parentVersion: any;
 
   fs.readdirSync(path)
     .sort() // ensure that in case of version folders the order is considered
@@ -98,7 +89,7 @@ function resolve(options: IInternalVersioningOptions,
 }
 
 function defineRoutes(router: Router,
-                      options: IInternalVersioningOptions, {routes, controllers}: {routes: string[], controllers: any}): Router {
+                      options: IInternalControllerOptions, {routes, controllers}: {routes: string[], controllers: any}): Router {
 
   routes.forEach(route => {
 
@@ -139,51 +130,7 @@ function defineRoutes(router: Router,
               // we can finally resolve the route with a controller instance
               if (index === leftNames.length - 1 && currentInnerNode) {
 
-                let controller;
-                const path = route.replace(VERSION_PLACEHOLDER, version);
-
-                // tslint:disable:no-console
-                if (options.debug) console.info(path);
-
-                let routeOptions;
-
-                if (typeof currentInnerNode === 'function') {
-
-                  routeOptions = getRouteHandlerOptions(currentInnerNode.prototype);
-
-                  if (typeof options.inject === 'function') {
-
-                    controller = options.inject(currentInnerNode);
-                  } else if (typeof options.injector === 'object') {
-
-                    controller = options.injector.get(currentInnerNode);
-                  } else {
-
-                    controller = new currentInnerNode();
-                  }
-                } else {
-
-                  controller = currentInnerNode;
-                }
-
-                if (routeOptions) {
-
-                  const rootPath = path;
-
-                  routeOptions.forEach(({method, path, propertyKey}) => {
-
-                    router[method](rootPath + path, (req, res, next) =>
-                      controller[propertyKey](req, res, next)
-                    );
-                  });
-                } else {
-
-                  router.use(path, (req: any, res, next) => {
-
-                    req.controller = controller;
-                    next();
-                  });
-                }
+                processController(currentInnerNode, router, version, route, options);
               }
             });
           });
@@ -206,7 +153,7 @@ function defineRoutes(router: Router,
  * @param filename
  * @returns {string}
  */
-export function removeExtension(filename: string): string {
+function removeExtension(filename: string): string {
 
   return filename.replace('.js', '');
 }
@@ -217,13 +164,13 @@ export function removeExtension(filename: string): string {
  * @param filename
  * @returns {boolean}
  */
-export function isJsFile(filename: string): boolean {
+function isJsFile(filename: string): boolean {
 
   return filename.slice(-3) === '.js';
 }
 
-export function getResourceName(options: IInternalVersioningOptions,
-                                controllerName: string): string|undefined {
+function getResourceName(options: IInternalControllerOptions,
+                         controllerName: string): string|undefined {
 
   const match = options.controllerPattern.exec(controllerName);
 
@@ -234,29 +181,99 @@ export function getResourceName(options: IInternalVersioningOptions,
   return void 0;
 }
 
-export function getController(module: any,
-                              controllerName: string): any {
+function getController(module: any,
+                       controllerName: string): any {
 
   const controller = module[controllerName] || module.default;
 
   if (!controller) {
 
-    throw new Error(`No default export or "${controllerName}" names export for route "${controllerName}" ` +
-      `in module { ${Object.keys(module).join()} } found`);
+    throw new Error(`No default export or no named export for file "${controllerName}" found ` +
+      ` in module { ${Object.keys(module).join()} }`);
   }
 
   return controller;
 }
 
-export function prepareOptions(options: IVersioningOptions): IInternalVersioningOptions {
+function processController(controller: any,
+                           router: Router,
+                           version: string,
+                           route: string,
+                           options: IInternalControllerOptions): void {
 
-  for (let key in defaultOptions) {
-    if (defaultOptions.hasOwnProperty(key) && !(key in options)) {
+  let controllerInstance: any;
+  const fullPath = route.replace(VERSION_PLACEHOLDER, version);
 
-      options[key] = defaultOptions[key];
+  // tslint:disable:no-console
+  /* istanbul ignore next */
+  if (options.debug) console.info(fullPath);
+
+  const controllerPrototype = controller.prototype || controller;
+
+  if (typeof controller === 'function') {
+
+    if (typeof options.inject === 'function') {
+
+      controllerInstance = options.inject(controller);
+    } else if (typeof options.injector === 'object') {
+
+      controllerInstance = options.injector.get(controller);
+    } else {
+
+      controllerInstance = new controller();
     }
+  } else {
+
+    controllerInstance = controller;
   }
 
-  return options as IInternalVersioningOptions;
-}
+  // Middleware for setting controller to req
+  router.use(fullPath, (req: any, res, next) => {
 
+    req.controller = controllerInstance;
+    next();
+  });
+
+  // If resolve route handler is true, we're trying to resolve
+  // route handlers by reflect meta data or trying to guess
+  // it by target property keys
+  if (options.resolveRouteHandler) {
+    let routeOptions: IRouteHandlerOptions|undefined = getRouteHandlerOptions(controllerPrototype);
+
+    if (!routeOptions) {
+      routeOptions = tryGuessingRouteHandlerOptionsByKeys(controllerPrototype);
+    }
+
+    if (routeOptions) {
+
+      const _routeOptions: IRouteHandlerOptions = routeOptions;
+      const rootPath = fullPath;
+
+      Object
+        .keys(_routeOptions)
+        .map<IRouteHandlerOption>(key => _routeOptions[key])
+        .sort((a, b) => {
+          if (a.method === b.method) {
+            return 0;
+          } else if (a.method === 'head') {
+            return -1;
+          }
+          return 1;
+        })
+        .forEach(({method, path, propertyKey, implementations}) => {
+
+          if (implementations.indexOf(controllerPrototype) === -1 &&
+            controllerPrototype.hasOwnProperty(propertyKey)) {
+
+            throw new Error(`Accidentally overridden route handler "${propertyKey}". When overriding a ` +
+              `route handler, the @OverrideRouteHandler annotation must be used. Annotate "${propertyKey}" ` +
+              `with @OverrideRouteHandler or change method name.`);
+          }
+
+          (router as any)[method](rootPath + path, (req: Request, res: Response, next: NextFunction) =>
+            controllerInstance[propertyKey](req, res, next)
+          );
+        });
+    }
+  }
+}

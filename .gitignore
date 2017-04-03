@@ -9,6 +9,7 @@ node_modules
 
 # testing
 coverage
+.nyc_output
 
 # certificates
 certificates/*
@@ -19,6 +20,9 @@ documentation
 # js files
 **/*.js
 **/*.js.map
+**/*.d.ts
+!lib/express-extensions.d.ts
+!lib/annotations/method-annotations
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

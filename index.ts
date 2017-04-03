@@ -1,15 +1,9 @@
-import {middleware} from "./lib/express-controllers";
+// tslint:disable:no-reference
+///<reference path="lib/declarations/express-extensions.d.ts"/>
 
-export const controllers = middleware;
+export {IControllerOptions} from './lib/interfaces/IControllerOptions'
 
-export {Delete} from './lib/annotations/Delete'
-export {Get} from './lib/annotations/Get'
-export {Head} from './lib/annotations/Head'
-export {Patch} from './lib/annotations/Patch'
-export {Post} from './lib/annotations/Post'
-export {Put} from './lib/annotations/Put'
+export {controllers, extend} from "./lib/express-controllers";
 
-export function extend(source: any, target: any): any {
-
-  return Object.assign(Object.create(source), target);
-}
+export * from './lib/annotations/method-annotations';
+export * from './lib/annotations/OverrideRouteHandler'

@@ -1,10 +1,21 @@
 {
   "name": "express-controllers",
   "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
+  "description": "Middleware for resolving controllers and handling versions",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "build-scripts": "tsc --project build",
+    "build-tests": "tsc --project test",
+    "generate": "node ./build/declaration-generator.js",
+    "test": "mocha test/specs/**/*.js",
+    "lint": "tslint .",
+    "cover": "nyc --all --require source-map-support/register mocha test/specs/**/*.js",
+    "release": "node ./build/scripts/release.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RobinBuschmann/express-controllers.git"
   },
   "author": "",
   "license": "ISC",
@@ -14,21 +25,41 @@
     "@types/express": "4.0.34",
     "@types/mocha": "2.2.35",
     "@types/reflect-metadata": "0.0.5",
-    "@types/supertest-as-promised": "2.0.32",
     "bluebird": "3.5.0",
     "chai": "3.5.0",
     "express": "4.14.0",
     "mocha": "3.2.0",
+    "nyc": "10.2.0",
     "reflect-metadata": "0.1.10",
+    "source-map-support": "0.4.14",
     "supertest": "2.0.1",
-    "supertest-as-promised": "4.0.2",
     "tslint": "4.1.1",
-    "typescript": "2.1.4"
+    "typescript": "2.1.4",
+    "ts-type-info": "6.2.3"
   },
   "dependencies": {
     "@types/pluralize": "0.0.27",
-    "@types/winston": "0.0.32",
-    "pluralize": "3.1.0",
-    "winston": "2.3.0"
+    "es6-shim": "0.35.3",
+    "pluralize": "3.1.0"
+  },
+  "nyc": {
+    "lines": 85,
+    "statements": 85,
+    "functions": 85,
+    "branches": 85,
+    "include": [
+      "lib/**/*.js"
+    ],
+    "exclude": [
+      "test/**/*.js"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ],
+    "cache": true,
+    "all": true,
+    "check-coverage": true,
+    "report-dir": "./coverage"
   }
 }

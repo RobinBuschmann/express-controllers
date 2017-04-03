@@ -16,7 +16,6 @@
     "specs/**/*"
   ],
   "files": [
-    "app.ts",
     "../lib/declarations/express-extensions.d.ts"
   ],
   "exclude": [
