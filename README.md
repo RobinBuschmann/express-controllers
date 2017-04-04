@@ -88,6 +88,7 @@ The name of files should have the same name as the resource, which will appear i
     
     const users = Object.create(v1User); // link usersV2 to usersV1 via prototype chain
     
+    // override
     users.getUser = function (req, res, next) {
     
       /* ... */
@@ -122,15 +123,12 @@ The name of files should have the same name as the resource, which will appear i
      
      export class UserController extends V1UserController {
    
+       // override
        getUser(req, res, next) {
       
           /* ... */
         }
-      
-        getUsers(req, res, next) {
-      
-          /* ... */
-        }
+    
      }
      
      ```
@@ -150,12 +148,11 @@ app.use(controllers({
 
 app.get('/:version/users', (req, res, next) => req.controller.getUsers(req, res, next));
 app.get('/:version/users/:id', (req, res, next) => req.controller.getUser(req, res, next));
-/* ... */
 ```
 
-## Defining routes directly in controllers when using TypeScript
+## Defining routes directly in controllers with TypeScript
 With TypeScript you're able to define the routes of its corresponding route handlers directly in the controller class
-of these handlers.
+of these handlers. Therefore annotations come into play.
 
 ### Configuration
 To use this feature, you need to install `reflect-metadata` and need to set some flags in your `tsconfig.json`:
@@ -172,3 +169,74 @@ npm install ??? --save
 ```
 
 ### Usage
+To define get routes, annotate the appropriate route handlers with a `@Get` annotation. The same works for all http
+methods, that are supported by express. Please notice, that you should not use the resource name in the path, since
+it is already set due to the filename.
+```typescript
+// /v1/UserController.js
+import {Get, Post, Put} from '???';
+
+export class UserController {
+
+  @Get('/:id')
+  getUser(req, res, next) {
+  
+    /* ... */
+  }
+
+  @Get
+  getUsers(req, res, next) {
+
+    /* ... */
+  }
+
+  @Get('/:id/posts')
+  getUserPosts(req, res, next) {
+
+    /* ... */
+  }
+
+  @Post
+  postUser(req, res, next) {
+
+    /* ... */
+  }
+
+  @Put('/:id')
+  putUser(req, res, next) {
+
+    /* ... */
+  }
+}
+```
+```typescript
+import {controllers} from '???';
+
+app.use(controllers({
+  path: __dirname + '/controllers',
+  controllerPattern: /(.*?)Controller/
+}));
+```
+
+#### Overriding
+When overriding route handlers of previous versions, you must not define the route for its handler again. But must
+instead use the `@OverrideRouteHandler` annotation. Otherwise `???` throws an error.
+This will ensures, that route handlers will not be overridden by accident. Furthermore, it makes clear, that the
+`@OverrideRouteHandler` annotated function *is* a route handler.
+
+```typescript
+// /v2/UserController.js
+import {OverrideRouteHandler} from '???';
+import {UserController as V1UserController} from '../v1/UserController';
+
+export class UserController extends V1UserController {
+
+  @OverrideRouteHandler
+  getUser(req, res, next) {
+  
+    /* ... */
+  }
+}
+```
+
+## API
