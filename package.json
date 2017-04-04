@@ -1,5 +1,5 @@
 {
-  "name": "express-controllers",
+  "name": "express-versioned-controllers",
   "version": "1.0.0",
   "description": "Express middleware for resolving controllers with api versioning support.",
   "main": "index.js",

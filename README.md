@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.org/RobinBuschmann/express-controllers.png?branch=master)](https://travis-ci.org/RobinBuschmann/express-controllers)
 [![codecov](https://codecov.io/gh/RobinBuschmann/express-controllers/branch/master/graph/badge.svg)](https://codecov.io/gh/RobinBuschmann/express-controllers)
-[![NPM](https://img.shields.io/npm/v/express-controllers.svg)](https://www.npmjs.com/package/express-controllers)
-[![Dependency Status](https://img.shields.io/david/RobinBuschmann/express-controllers.svg)](https://www.npmjs.com/package/express-controllers)
+[![NPM](https://img.shields.io/npm/v/express-versioning.svg)](https://www.npmjs.com/package/express-versioning)
+[![Dependency Status](https://img.shields.io/david/RobinBuschmann/express-versioning.svg)](https://www.npmjs.com/package/express-versioning)
 
-# express-controllers
+# express-versioning
 Express middleware for resolving controllers with api versioning support.
 
  - [Digression: REST API versioning problems](#digression-rest-api-versioning-problems)
@@ -16,7 +16,7 @@ Express middleware for resolving controllers with api versioning support.
 
 ### Installation
 ```
-npm install express-controllers --save
+npm install express-versioning --save
 ```
 
 ## Digression REST API versioning problems
@@ -54,7 +54,7 @@ But to make this endpoint also available in version 2, we had to do so.
 **Since DRY is not satisfied, all these issues will probably result in bugs**
 
 ## Solution
-`express-controllers` solves the previously discussed problems for you. So that you don't need to repeat yourself:
+`express-versioning` solves the previously discussed problems for you. So that you don't need to repeat yourself:
 
 ### Getting Started
 1. **Create file structure for controllers**
@@ -131,7 +131,7 @@ The name of files should have the same name as the resource, which will appear i
 
 3. **Setup middleware and routes**
 ```typescript
-import {controllers} from 'express-controllers';
+import {controllers} from 'express-versioning';
 
 app.use(controllers({
   path: __dirname + '/controllers'
@@ -176,7 +176,7 @@ If your controllers are structured much more complex like:
             - documents.js
         ...
 ```
-`express-controllers` can also handle this for you and will resolve the controllers of the example to the following routes:
+`express-versioning` can also handle this for you and will resolve the controllers of the example to the following routes:
 ```
 organization-a/:version/users
 organization-b/:version/users
@@ -192,7 +192,7 @@ To use this feature, you need to install `reflect-metadata` and need to set some
 
 #### `reflect-metadata`
 ```
-npm install express-controllers --save
+npm install reflect-metadata --save
 ```
 
 #### `tsconfig.json`
@@ -208,7 +208,7 @@ it is already set due to the filename.
 ```typescript
 // /v1/UserController.js
 import {Request, Response, NextFunction} from 'express';
-import {Get, Post, Put} from 'express-controllers';
+import {Get, Post, Put} from 'express-versioning';
 
 export class UserController {
 
@@ -231,7 +231,7 @@ export class UserController {
 #### Configure middleware
 `resolveRouteHandler` need to be set to `true`.
 ```typescript
-import {controllers} from 'express-controllers';
+import {controllers} from 'express-versioning';
 
 app.use(controllers({
   path: __dirname + '/controllers',
@@ -242,13 +242,13 @@ app.use(controllers({
 
 #### Overriding
 When overriding route handlers of previous versions, you must not define the route for its handler again. But must
-instead use the `@OverrideRouteHandler` annotation. Otherwise `express-controllers` throws an error.
+instead use the `@OverrideRouteHandler` annotation. Otherwise `express-versioning` throws an error.
 This will ensures, that route handlers will not be overridden by accident. Furthermore, it makes clear, that the
 `@OverrideRouteHandler` annotated function *is* a route handler.
 
 ```typescript
 // /v2/UserController.js
-import {OverrideRouteHandler} from 'express-controllers';
+import {OverrideRouteHandler} from 'express-versioning';
 import {UserController as V1UserController} from '../v1/UserController';
 
 export class UserController extends V1UserController {
