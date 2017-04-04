@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Express middleware for resolving controllers with api versioning support.",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build-scripts": "tsc --project build",
     "build": "npm run build-scripts && npm run generate && tsc",
