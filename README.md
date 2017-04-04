@@ -6,7 +6,7 @@
 # express-controllers
 Express middleware for resolving controllers with api versioning support.
 
- - [REST API versioning problems](#rest-api-versioning-problems)
+ - [Digression: REST API versioning problems](#digression-rest-api-versioning-problems)
  - [Solution](#solution)
  - [Getting started](#getting-started)
  - [Abstract controllers](#abstract-controllers)
@@ -19,7 +19,7 @@ Express middleware for resolving controllers with api versioning support.
 npm install express-controllers --save
 ```
 
-## REST API versioning problems
+## Digression REST API versioning problems
 When creating a REST api with version support, there will be some problems you will face:
 
 The definition of the same routes for all versions again and again and again ... and the need to care about which 
