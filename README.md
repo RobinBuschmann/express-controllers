@@ -70,16 +70,10 @@ The name of files should have the same name as the resource, which will appear i
      
     const users = {
         
-     getUser(req, res, next) {
+       getUser(req, res, next) { /* ... */ },
     
-        /* ... */
-      },
-    
-      getUsers(req, res, next) {
-    
-        /* ... */
-      }
-    }
+       getUsers(req, res, next) { /* ... */ }
+    };
      
     export default users;
     
@@ -87,12 +81,8 @@ The name of files should have the same name as the resource, which will appear i
     import v1User from '../v1/users.js'
     
     const users = Object.create(v1User); // link usersV2 to usersV1 via prototype chain
-    
     // override
-    users.getUser = function (req, res, next) {
-    
-      /* ... */
-    }
+    users.getUser = function (req, res, next) { /* ... */ };
     
     export default users;
     
@@ -107,15 +97,9 @@ The name of files should have the same name as the resource, which will appear i
       
      export default class UserController {
   
-       getUser(req, res, next) {
+       getUser(req, res, next) { /* ... */ }
       
-          /* ... */
-        }
-      
-        getUsers(req, res, next) {
-      
-          /* ... */
-        }
+       getUsers(req, res, next) { /* ... */ }
      }
      
      // v2/users.js
@@ -124,10 +108,7 @@ The name of files should have the same name as the resource, which will appear i
      export class UserController extends V1UserController {
    
        // override
-       getUser(req, res, next) {
-      
-          /* ... */
-        }
+       getUser(req, res, next) { /* ... */ }
     
      }
      
@@ -174,39 +155,25 @@ methods, that are supported by express. Please notice, that you should not use t
 it is already set due to the filename.
 ```typescript
 // /v1/UserController.js
+import {Request, Response, NextFunction} from 'express';
 import {Get, Post, Put} from '???';
 
 export class UserController {
 
   @Get('/:id')
-  getUser(req, res, next) {
-  
-    /* ... */
-  }
+  getUser(req: Request, res: Response, next: NextFunction) { /* ... */ }
 
   @Get
-  getUsers(req, res, next) {
-
-    /* ... */
-  }
+  getUsers(req: Request, res: Response, next: NextFunction) { /* ... */ }
 
   @Get('/:id/posts')
-  getUserPosts(req, res, next) {
-
-    /* ... */
-  }
+  getUserPosts(req: Request, res: Response, next: NextFunction) { /* ... */ }
 
   @Post
-  postUser(req, res, next) {
-
-    /* ... */
-  }
+  postUser(req: Request, res: Response, next: NextFunction) { /* ... */ }
 
   @Put('/:id')
-  putUser(req, res, next) {
-
-    /* ... */
-  }
+  putUser(req: Request, res: Response, next: NextFunction) { /* ... */ }
 }
 ```
 ```typescript
@@ -232,10 +199,7 @@ import {UserController as V1UserController} from '../v1/UserController';
 export class UserController extends V1UserController {
 
   @OverrideRouteHandler
-  getUser(req, res, next) {
-  
-    /* ... */
-  }
+  getUser(req: Request, res: Response, next: NextFunction) { /* ... */ }
 }
 ```
 
