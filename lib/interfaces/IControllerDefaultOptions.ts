@@ -9,7 +9,7 @@ export interface IControllerDefaultOptions {
 
   /**
    * Regex pattern to recognize controller files
-   * @default /^(.*?)Controller$/
+   * @default /^(.*?)$/
    */
   controllerPattern?: RegExp;
 

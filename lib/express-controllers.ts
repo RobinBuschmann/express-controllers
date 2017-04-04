@@ -6,7 +6,7 @@ import {createRouter} from "./services/routing";
 
 const defaultOptions: IControllerDefaultOptions = {
 
-  controllerPattern: /^(.*?)Controller$/,
+  controllerPattern: /^(.*?)$/,
   versionPattern: /^(v\d.*)$/,
   resolveRouteHandler: false,
   debug: false,

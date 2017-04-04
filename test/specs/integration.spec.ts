@@ -12,16 +12,30 @@ describe('integration', () => {
     [
       {
         describe: 'classes',
-        path: __dirname + '/../controllers/simple-classes',
+        path: __dirname + '/../controllers/classes',
         resolveRouteHandler: true,
+        controllerPattern: /^(.*?)Controller/
+      },
+      {
+        describe: 'classes (default export)',
+        path: __dirname + '/../controllers/classes-default-export',
+        resolveRouteHandler: true,
+        controllerPattern: /^(.*?)Controller/
+      },
+      {
+        describe: 'classes (inject getter)',
+        path: __dirname + '/../controllers/classes',
+        resolveRouteHandler: true,
+        controllerPattern: /^(.*?)Controller/,
         inject(model: any): any {
           return new model();
         }
       },
       {
-        describe: 'classes',
-        path: __dirname + '/../controllers/simple-classes',
+        describe: 'classes (injector)',
+        path: __dirname + '/../controllers/classes',
         resolveRouteHandler: true,
+        controllerPattern: /^(.*?)Controller/,
         injector: {
           get(model: any): any {
             return new model();
@@ -30,9 +44,8 @@ describe('integration', () => {
       },
       {
         describe: 'objects',
-        path: __dirname + '/../controllers/simple-objects',
-        resolveRouteHandler: true,
-        controllerPattern: /^(.*)/
+        path: __dirname + '/../controllers/object-literals',
+        resolveRouteHandler: true
       },
     ].forEach(options => {
 
@@ -256,6 +269,7 @@ describe('integration', () => {
 
     app.use(controllers({
       path: __dirname + '/../controllers/complex/classes',
+      controllerPattern: /^(.*?)Controller/,
       resolveRouteHandler: true,
       inject(model: any): any {
         return new model();
@@ -263,8 +277,7 @@ describe('integration', () => {
     }));
     app.use(controllers({
       path: __dirname + '/../controllers/complex/objects',
-      resolveRouteHandler: true,
-      controllerPattern: /^(.*)$/
+      resolveRouteHandler: true
     }));
 
     const orgA = Router();
