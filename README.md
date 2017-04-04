@@ -6,8 +6,7 @@
 # express-versioning
 Express middleware for resolving controllers with api versioning support.
 
- - [Digression: REST API versioning problems](#digression-rest-api-versioning-problems)
- - [Solution](#solution)
+ - [Digression REST API versioning problems](#digression-rest-api-versioning-problems)
  - [Getting started](#getting-started)
  - [Abstract controllers](#abstract-controllers)
  - [Complex file structures](#complex-file-structures)
@@ -53,10 +52,10 @@ But to make this endpoint also available in version 2, we had to do so.
 
 **Since DRY is not satisfied, all these issues will probably result in bugs**
 
-## Solution
-`express-versioning` solves the previously discussed problems for you. So that you don't need to repeat yourself:
+`express-versioning` solves the previously discussed problems for you. So that you don't need to repeat yourself.
+See getting started:
 
-### Getting Started
+## Getting Started
 1. **Create file structure for controllers**
 ```
  - controllers/
