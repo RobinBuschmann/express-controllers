@@ -6,7 +6,7 @@
 # express-controllers
 Express middleware for resolving controllers from path with api versioning support.
 
- - [REST API versioning problems](#api-versioning-problems)
+ - [REST API versioning problems](#rest-api-versioning-problems)
  - [Solution](#solution)
  - [Getting started](#getting-started)
  - [Abstract controllers](#abstract-controllers)
@@ -309,4 +309,25 @@ injector?: {get<T>(model: any): T};
  * Inject function to inject a controller class instance
  */
 inject?<T>(model: any): T;
+```
+
+### Annotations
+
+```typescript
+
+/**
+ * Stores http method and path as metadata for target prototype
+ */
+
+@Get
+@Get(path: PathParams)
+
+@Put
+@Put(path: PathParams)
+
+@Post
+@Post(path: PathParams)
+
+// ... works for all http methods, that are supported by express
+
 ```
