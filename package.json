@@ -28,15 +28,16 @@
     "@types/reflect-metadata": "0.0.5",
     "bluebird": "3.5.0",
     "chai": "3.5.0",
+    "codecov": "2.1.0",
     "express": "4.14.0",
     "mocha": "3.2.0",
     "nyc": "10.2.0",
     "reflect-metadata": "0.1.10",
     "source-map-support": "0.4.14",
     "supertest": "2.0.1",
+    "ts-type-info": "6.2.3",
     "tslint": "4.1.1",
-    "typescript": "2.1.4",
-    "ts-type-info": "6.2.3"
+    "typescript": "2.1.4"
   },
   "dependencies": {
     "@types/pluralize": "0.0.27",
