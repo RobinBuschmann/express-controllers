@@ -49,7 +49,7 @@ also available in version 2, we had to do so.
 `???` solves the previously discussed problems for you. So that you don't need to repeat yourself:
 
 ## Getting Started
-1. Create file structure for controllers
+1. **Create file structure for controllers**
 ```
  - controllers/
     - v1/
@@ -63,8 +63,8 @@ also available in version 2, we had to do so.
 The name of files should have the same name as the resource, which will appear in the path of the route. So that
 `users.js` => `/users`. If you want to use any prefix or suffix for your file names see *controllerPattern* **TODO**
 
-2. Setup controllers
-    1. Object literal approach 
+2. **Setup controllers**
+    1. **Object literal approach**
     ```typescript
     // v1/users.js
      
@@ -100,7 +100,7 @@ The name of files should have the same name as the resource, which will appear i
     be linked to the previous version. This is achieved with `Object.create(v1User)`. 
     **If you don't want to make previous functionality available, don't link the controllers**
     
-    2. Class approach 
+    2. **Class approach**
      ```typescript
      // v1/users.js
       
@@ -139,7 +139,8 @@ The name of files should have the same name as the resource, which will appear i
     **If you don't want to make previous functionality available, don't extend the controllers of the previous version**
     
 **If you prefer using named exports, make sure, that the filename and the name of the exported controller are the same**
-3. Setup middleware and routes
+
+3. **Setup middleware and routes**
 ```typescript
 import {controllers} from '???';
 
