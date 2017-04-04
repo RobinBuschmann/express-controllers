@@ -6,12 +6,20 @@
 # express-controllers
 Express middleware for resolving controllers from path with api versioning support.
 
+ - [REST API versioning problems](#api-versioning-problems)
+ - [Solution](#solution)
+ - [Getting started](#getting-started)
+ - [Abstract controllers](#abstract-controllers)
+ - [Complex file structures](#complex-file-structures)
+ - [Defining routes directly in controllers with TypeScript](#defining-routes-directly-in-controllers-with-typescript)
+ - [API](#api)
+
 ### Installation
 ```
 npm install ??? --save
 ```
 
-## API versioning problems 
+## REST API versioning problems
 When creating a REST api with version support, there will be some problems you will face:
 
 The definition of the same routes for all versions again and again and again ... and the need to care about which 
@@ -40,15 +48,15 @@ app.get('/v2/users/:id', (req, res, next) => usersController.getUser(req, res, n
 
 app.post('/v2/users', (req, res, next) => usersController2.postUser(req, res, next));
 ```
-Route `/v2/users/:id` has to be defined again, despite of nothing has changed in version 2. But to make this endpoint
-also available in version 2, we had to do so.
+Route `/v2/users/:id` has to be defined again, despite of nothing has changed in version 2 in `getUser` implementation. 
+But to make this endpoint also available in version 2, we had to do so.
 
 **Since DRY is not satisfied, all these issues will probably result in bugs**
 
 ## Solution
 `???` solves the previously discussed problems for you. So that you don't need to repeat yourself:
 
-## Getting Started
+### Getting Started
 1. **Create file structure for controllers**
 ```
  - controllers/
@@ -89,7 +97,7 @@ The name of files should have the same name as the resource, which will appear i
     ```
     To make functionality of previous versions available in a newly created version, the newly created version has to
     be linked to the previous version. This is achieved with `Object.create(v1User)`. 
-    **If you don't want to make previous functionality available, don't link the controllers**
+    If you don't want to make previous functionality available, don't link the controllers
     
     2. **Class approach**
      ```typescript
@@ -115,7 +123,9 @@ The name of files should have the same name as the resource, which will appear i
      ```
     To make functionality of previous versions available in a newly created version, the newly created version has to
     extend the controller of the previous version.
-    **If you don't want to make previous functionality available, don't extend the controllers of the previous version**
+    If you don't want to make previous functionality available, don't extend the controllers of the previous version
+    
+    If you're using **dependency injection**, you can set a getter function or an injector (see here TODO)
     
 **If you prefer using named exports, make sure, that the filename and the name of the exported controller are the same**
 
@@ -129,6 +139,48 @@ app.use(controllers({
 
 app.get('/:version/users', (req, res, next) => req.controller.getUsers(req, res, next));
 app.get('/:version/users/:id', (req, res, next) => req.controller.getUser(req, res, next));
+```
+
+## Abstract controllers
+If you want to define abstract controllers for you routes, you can do so by creating an abstract folder on the
+same level as the version folders:
+```
+ - controllers/
+    - abstract/
+        - users.js
+        - posts.js
+        - comments.js
+    - v1/
+        - users.js
+        - posts.js
+        - comments.js
+    - v2/
+        - users.js
+        ...
+```
+The name of the abstract folder can be changed (see here TODO). 
+
+## Complex file structures
+If your controllers are structured much more complex like:
+```
+ - controllers/
+    - organization-a/
+        - v1/
+          - users.js
+        - v2/
+          - users.js
+    - organization-b/
+        - v1/
+          - users.js
+          - sub-organization/
+            - documents.js
+        ...
+```
+`???` can also handle this for you and will resolve the controllers of the example to the following routes:
+```
+organization-a/:version/users
+organization-b/:version/users
+organization-b/:version/sub-organiuation/documents
 ```
 
 ## Defining routes directly in controllers with TypeScript
@@ -176,11 +228,14 @@ export class UserController {
   putUser(req: Request, res: Response, next: NextFunction) { /* ... */ }
 }
 ```
+#### Configure middleware
+`resolveRouteHandler` need to be set to `true`.
 ```typescript
 import {controllers} from '???';
 
 app.use(controllers({
   path: __dirname + '/controllers',
+  resolveRouteHandler: true,
   controllerPattern: /(.*?)Controller/
 }));
 ```
@@ -204,3 +259,54 @@ export class UserController extends V1UserController {
 ```
 
 ## API
+
+### `controllers` options
+ 
+```typescript
+/**
+ * Path to controllers
+ */
+path: string;
+
+/**
+ * Regex pattern to recognize a version folder
+ * @default /^(v\d.*)$/
+ */
+versionPattern?: RegExp;
+
+/**
+ * Regex pattern to recognize controller files
+ * @default /^(.*?)Controller$/
+ */
+controllerPattern?: RegExp;
+
+/**
+ * Name of directory in which abstract controllers can be
+ * found
+ * @default abstract
+ */
+abstractDir?: string;
+
+/**
+ * Prints some info to console if true. Default is false
+ * @default false
+ */
+debug?: boolean;
+
+/**
+ * Indicates if routes handlers should be resolved from
+ * controllers automatically or not
+ * @default false
+ */
+resolveRouteHandler?: boolean;
+
+/**
+ * Injector to inject controller class instance
+ */
+injector?: {get<T>(model: any): T};
+
+/**
+ * Inject function to inject a controller class instance
+ */
+inject?<T>(model: any): T;
+```

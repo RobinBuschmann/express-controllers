@@ -2,29 +2,34 @@
 export interface IControllerDefaultOptions {
 
   /**
-   * Regex pattern of versions to recognize a version folder
+   * Regex pattern to recognize a version folder
+   * @default /^(v\d.*)$/
    */
   versionPattern?: RegExp;
 
   /**
-   * Regex pattern of controllers to recognize controller files
+   * Regex pattern to recognize controller files
+   * @default /^(.*?)Controller$/
    */
   controllerPattern?: RegExp;
 
   /**
    * Name of directory in which abstract controllers can be
    * found
+   * @default abstract
    */
   abstractDir?: string;
 
   /**
    * Prints some info to console if true. Default is false
+   * @default false
    */
   debug?: boolean;
 
   /**
    * Indicates if routes handlers should be resolved from
    * controllers automatically or not
+   * @default false
    */
   resolveRouteHandler?: boolean;
 
