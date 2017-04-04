@@ -1,7 +1,7 @@
-[![Build Status](https://travis-ci.org/RobinBuschmann/sequelize-typescript.png?branch=master)](https://travis-ci.org/RobinBuschmann/sequelize-typescript)
-[![codecov](https://codecov.io/gh/RobinBuschmann/sequelize-typescript/branch/master/graph/badge.svg)](https://codecov.io/gh/RobinBuschmann/sequelize-typescript)
-[![NPM](https://img.shields.io/npm/v/sequelize-typescript.svg)](https://www.npmjs.com/package/sequelize-typescript)
-[![Dependency Status](https://img.shields.io/david/RobinBuschmann/sequelize-typescript.svg)](https://www.npmjs.com/package/sequelize-typescript)
+[![Build Status](https://travis-ci.org/RobinBuschmann/express-controllers.png?branch=master)](https://travis-ci.org/RobinBuschmann/express-controllers)
+[![codecov](https://codecov.io/gh/RobinBuschmann/express-controllers/branch/master/graph/badge.svg)](https://codecov.io/gh/RobinBuschmann/express-controllers)
+[![NPM](https://img.shields.io/npm/v/???.svg)](https://www.npmjs.com/package/???)
+[![Dependency Status](https://img.shields.io/david/RobinBuschmann/???.svg)](https://www.npmjs.com/package/???)
 
 # express-controllers
 Express middleware for resolving controllers from path with api versioning support.
@@ -69,7 +69,7 @@ But to make this endpoint also available in version 2, we had to do so.
         ...
 ```
 The name of files should have the same name as the resource, which will appear in the path of the route. So that
-`users.js` => `/users`. If you want to use any prefix or suffix for your file names see *controllerPattern* **TODO**
+`users.js` => `/users`. If you want to use any prefix or suffix for your file names see [controllerPattern](#api)
 
 2. **Setup controllers**
     1. **Object literal approach**
@@ -125,7 +125,7 @@ The name of files should have the same name as the resource, which will appear i
     extend the controller of the previous version.
     If you don't want to make previous functionality available, don't extend the controllers of the previous version
     
-    If you're using **dependency injection**, you can set a getter function or an injector (see here TODO)
+    If you're using **dependency injection**, you can set a getter function or an injector (see [here](#api))
     
 **If you prefer using named exports, make sure, that the filename and the name of the exported controller are the same**
 
@@ -158,7 +158,7 @@ same level as the version folders:
         - users.js
         ...
 ```
-The name of the abstract folder can be changed (see here TODO). 
+The name of the abstract folder can be changed (see [here](#api)). 
 
 ## Complex file structures
 If your controllers are structured much more complex like:
