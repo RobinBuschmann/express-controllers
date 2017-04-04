@@ -1,7 +1,7 @@
 {
   "name": "express-controllers",
   "version": "1.0.0",
-  "description": "Middleware for resolving controllers and handling versions",
+  "description": "Express middleware for resolving controllers with api versioning support.",
   "main": "index.js",
   "scripts": {
     "build-scripts": "tsc --project build",
@@ -18,7 +18,7 @@
     "type": "git",
     "url": "git+https://github.com/RobinBuschmann/express-controllers.git"
   },
-  "author": "",
+  "author": "Robin Buschmann",
   "license": "ISC",
   "devDependencies": {
     "@types/bluebird": "3.5.2",
