@@ -5,14 +5,14 @@
   "main": "index.js",
   "scripts": {
     "build-scripts": "tsc --project build",
-    "build": "tsc && npm run generate",
+    "build": "npm run build-scripts && npm run generate && tsc",
+    "build-publish": "npm run build-scripts && npm run generate && tsc --p tsconfig.publish.json",
     "build-tests": "tsc --project test",
-    "remove-d": "rm -rf **/*.d.ts",
+    "remove-d": "git clean -xf",
     "generate": "node ./build/declaration-generator.js",
     "test": "mocha test/specs/**/*.js",
     "lint": "tslint .",
-    "cover": "nyc --all --require source-map-support/register mocha test/specs/**/*.js",
-    "release": "node ./build/scripts/release.js"
+    "cover": "nyc --all --require source-map-support/register mocha test/specs/**/*.js"
   },
   "repository": {
     "type": "git",
