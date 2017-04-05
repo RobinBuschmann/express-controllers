@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/RobinBuschmann/express-controllers.png?branch=master)](https://travis-ci.org/RobinBuschmann/express-controllers)
 [![codecov](https://codecov.io/gh/RobinBuschmann/express-controllers/branch/master/graph/badge.svg)](https://codecov.io/gh/RobinBuschmann/express-controllers)
 [![NPM](https://img.shields.io/npm/v/express-versioning.svg)](https://www.npmjs.com/package/express-versioning)
-[![Dependency Status](https://img.shields.io/david/RobinBuschmann/express-versioning.svg)](https://www.npmjs.com/package/express-versioning)
+[![Dependency Status](https://img.shields.io/david/RobinBuschmann/express-controllers.svg)](https://www.npmjs.com/package/express-versioning)
 
 # express-versioning
 Express middleware for resolving controllers with api versioning support.
