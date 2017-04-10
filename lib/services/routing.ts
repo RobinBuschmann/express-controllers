@@ -2,7 +2,11 @@ import * as fs from 'fs';
 import {Router, Request, Response, NextFunction} from 'express';
 import * as pluralize from 'pluralize';
 import {IInternalControllerOptions} from "../interfaces/IInternalControllerOptions";
-import {getRouteHandlerOptions, tryGuessingRouteHandlerOptionsByKeys} from "./controller";
+import {
+  getRouteHandlerOptions,
+  tryGuessingRouteHandlerOptionsByKeys,
+  getResourceName as getResourceNameMeta
+} from "./controller";
 import {IRouteHandlerOption} from "../interfaces/IRouteHandlerOption";
 import {IRouteHandlerOptions} from "../interfaces/IRouteHandlerOptions";
 
@@ -16,6 +20,9 @@ export function createRouter(options: IInternalControllerOptions): Router {
   return defineRoutes(router, options, data);
 }
 
+/**
+ * Resolves routes including resources and its controller objects
+ */
 function resolve(options: IInternalControllerOptions,
                  path: string = options.path,
                  controllers: any = {},
@@ -68,14 +75,15 @@ function resolve(options: IInternalControllerOptions,
       } else if (isJsFile(name)) {
 
         const controllerName = removeExtension(name);
-        const resourceName = getResourceName(options, controllerName);
+        const module = require(subpath);
+        const controller = getController(module, controllerName);
+        const resourceName = getResourceName(options, controllerName, controller);
 
         if (resourceName) {
 
           const finalRoute = route + `/${resourceName}`;
-          const module = require(subpath);
 
-          controllers[resourceName] = getController(module, controllerName);
+          controllers[resourceName] = controller;
 
           if (routes.indexOf(finalRoute) === -1) routes.push(finalRoute);
         }
@@ -88,6 +96,9 @@ function resolve(options: IInternalControllerOptions,
   };
 }
 
+/**
+ * Defines express routes
+ */
 function defineRoutes(router: Router,
                       options: IInternalControllerOptions, {routes, controllers}: {routes: string[], controllers: any}): Router {
 
@@ -170,8 +181,20 @@ function isJsFile(filename: string): boolean {
 }
 
 function getResourceName(options: IInternalControllerOptions,
-                         controllerName: string): string|undefined {
+                         controllerName: string,
+                         controller: any): string|undefined {
 
+  // Try to retrieve resource name from meta data if resolveRouteHandler is true
+  if (options.resolveRouteHandler && controller) {
+    const prototype = controller.prototype || controller;
+    const resourceName = getResourceNameMeta(prototype);
+
+    if (resourceName) {
+      return resourceName;
+    }
+  }
+
+  // Try to retrieve resource name from file name
   const match = options.controllerPattern.exec(controllerName);
 
   if (match && match.length) {

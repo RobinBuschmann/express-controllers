@@ -4,7 +4,46 @@ import {capitalize} from "../utils/string";
 import {methods} from "../utils/http";
 
 const ROUTE_HANDLERS_KEY = 'er:route-handler';
+const RESOURCE_KEY = 'er:resource-name';
 
+/**
+ * Process resource meta data
+ */
+export function processResource(target: any, resourceName: string): void {
+
+  const existingName = getResourceName(target);
+
+  if (existingName) {
+    throw new Error(`Resource name already set on prototype chain. ` +
+    `Resource name can only set once. When extending a controller the inheriting controller ` +
+    `don't need no @Resource annotation.`);
+  }
+
+  // remove starting "/" if exists
+  resourceName = resourceName.replace(/^\//, '');
+
+  setResourceName(target, resourceName);
+}
+
+/**
+ * Stores resource name to meta data
+ */
+export function setResourceName(target: any, resourceName: string): void {
+
+  Reflect.defineMetadata(RESOURCE_KEY, resourceName, target);
+}
+
+/**
+ * Retrieves resource name from meta data
+ */
+export function getResourceName(target: any): string|undefined {
+
+  return Reflect.getMetadata(RESOURCE_KEY, target);
+}
+
+/**
+ * Processes route by specified method and arguments
+ */
 export function annotateRoute(method: string, args: any[]): void|Function {
 
   let path = '';
@@ -24,6 +63,9 @@ export function annotateRoute(method: string, args: any[]): void|Function {
   }
 }
 
+/**
+ * Adds an implementation to route handler meta. Comes into play when overriding a route handler
+ */
 export function addImplementationToRouteHandler(target: any, propertyKey: string): void|Function {
 
   const option = getRouteHandlerOption(target, propertyKey);
@@ -125,6 +167,9 @@ export function addRouteHandlerOption(target: any,
   setRouteHandlerOptions(target, options);
 }
 
+/**
+ * Returns route handler option by retrieving information from reflect-metadata
+ */
 function getRouteHandlerOption(target: any, propertyKey: string): IRouteHandlerOption|undefined {
 
   const options = getRouteHandlerOptions(target);

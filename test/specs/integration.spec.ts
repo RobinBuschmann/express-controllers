@@ -263,6 +263,43 @@ describe('integration', () => {
 
   });
 
+  describe('resource', () => {
+
+    it('should not throw', () => {
+
+      expect(() => {
+
+        controllers({
+          path: __dirname + '/../controllers/resource',
+          resolveRouteHandler: true
+        });
+      }).not.to.throw();
+    });
+
+    it('should use explicitly set resource name instead prepared file name', () => {
+
+      const routes = controllers({
+        path: __dirname + '/../controllers/resource',
+        resolveRouteHandler: true
+      });
+
+      expect(routes.stack[1].route.path).to.equal('/v1/cats');
+      expect(routes.stack[3].route.path).to.equal('/v2/cats');
+    });
+
+    it('should throw due to duplicate @Resource annotation', () => {
+
+      expect(() => {
+
+        controllers({
+          path: __dirname + '/../controllers/resource-duplicate-annotation',
+          resolveRouteHandler: true
+        });
+      }).to.throw(/Resource name already set on prototype chain/);
+    });
+
+  });
+
   describe('complex structure', () => {
 
     const app = express();

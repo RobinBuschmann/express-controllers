@@ -6,54 +6,17 @@
 # express-versioning
 Express middleware for resolving controllers with api versioning support.
 
- - [Digression REST API versioning problems](#digression-rest-api-versioning-problems)
  - [Getting started](#getting-started)
  - [Abstract controllers](#abstract-controllers)
  - [Complex file structures](#complex-file-structures)
  - [Defining routes directly in controllers with TypeScript](#defining-routes-directly-in-controllers-with-typescript)
  - [API](#api)
+ - [Why?](#why)
 
 ### Installation
 ```
 npm install express-versioning --save
 ```
-
-## Digression REST API versioning problems
-When creating a REST api with version support, there will be some problems you will face:
-
-The definition of the same routes for all versions again and again and again ... and the need to care about which 
-controller should be used for which version:
-```typescript
-app.get('/v1/users', (req, res, next) => usersController.getUsers(req, res, next));
-app.get('/v2/users', (req, res, next) => usersController1.getUsers(req, res, next));
-app.get('/v3/users', (req, res, next) => usersController2.getUsers(req, res, next));
-/* ... */
-```
-
-The definition of routes of previous versions for next versions.
-When creating a next version, not all routes should be created again for a new version. Especially when not all 
-routes have changed compared to the previous version:
-```typescript
-// version 1
-app.get('/v1/users', (req, res, next) => usersController.getUsers(req, res, next));
-app.get('/v1/users/:id', (req, res, next) => usersController.getUser(req, res, next));
-app.post('/v1/users', (req, res, next) => usersController.postUser(req, res, next));
-
-// version 2
-app.get('/v2/users', (req, res, next) => usersController2.getUsers(req, res, next));
-
-// no changes here (see "userController" instead of "userController2")
-app.get('/v2/users/:id', (req, res, next) => usersController.getUser(req, res, next));
-
-app.post('/v2/users', (req, res, next) => usersController2.postUser(req, res, next));
-```
-Route `/v2/users/:id` has to be defined again, despite of nothing has changed in version 2 in `getUser` implementation. 
-But to make this endpoint also available in version 2, we had to do so.
-
-**Since DRY is not satisfied, all these issues will probably result in bugs**
-
-`express-versioning` solves the previously discussed problems for you. So that you don't need to repeat yourself.
-See getting started:
 
 ## Getting Started
 1. **Create file structure for controllers**
@@ -239,7 +202,7 @@ app.use(controllers({
 }));
 ```
 
-#### Overriding
+#### Overriding route handlers
 When overriding route handlers of previous versions, you must not define the route for its handler again. But must
 instead use the `@OverrideRouteHandler` annotation. Otherwise `express-versioning` throws an error.
 This will ensures, that route handlers will not be overridden by accident. Furthermore, it makes clear, that the
@@ -254,6 +217,27 @@ export class UserController extends V1UserController {
 
   @OverrideRouteHandler
   getUser(req: Request, res: Response, next: NextFunction) { /* ... */ }
+}
+```
+
+#### Set resource name explicitly
+If you don't want the resource name to be inferred by file name automatically, you can do so, by setting the resource
+name explicitly with `@Resource`:
+```typescript
+import {Resource} from 'express-versioning';
+
+@Resource('users')
+export class UserController {
+
+}
+```
+or with starting "/"
+```typescript
+import {Resource} from 'express-versioning';
+
+@Resource('/users')
+export class UserController {
+
 }
 ```
 
@@ -330,3 +314,39 @@ inject?<T>(model: any): T;
 // ... works for all http methods, that are supported by express
 
 ```
+
+## Why
+When creating a REST api with version support, there will be some problems you will face:
+
+The definition of the same routes for all versions again and again and again ... and the need to care about which 
+controller should be used for which version:
+```typescript
+app.get('/v1/users', (req, res, next) => usersController.getUsers(req, res, next));
+app.get('/v2/users', (req, res, next) => usersController1.getUsers(req, res, next));
+app.get('/v3/users', (req, res, next) => usersController2.getUsers(req, res, next));
+/* ... */
+```
+
+The definition of routes of previous versions for next versions.
+When creating a next version, not all routes should be created again for a new version. Especially when not all 
+routes have changed compared to the previous version:
+```typescript
+// version 1
+app.get('/v1/users', (req, res, next) => usersController.getUsers(req, res, next));
+app.get('/v1/users/:id', (req, res, next) => usersController.getUser(req, res, next));
+app.post('/v1/users', (req, res, next) => usersController.postUser(req, res, next));
+
+// version 2
+app.get('/v2/users', (req, res, next) => usersController2.getUsers(req, res, next));
+
+// no changes here (see "userController" instead of "userController2")
+app.get('/v2/users/:id', (req, res, next) => usersController.getUser(req, res, next));
+
+app.post('/v2/users', (req, res, next) => usersController2.postUser(req, res, next));
+```
+Route `/v2/users/:id` has to be defined again, despite of nothing has changed in version 2 in `getUser` implementation. 
+But to make this endpoint also available in version 2, we had to do so.
+
+**Since DRY is not satisfied, all these issues will probably result in bugs**
+
+`express-versioning` solves these problems for you. So that you don't need to repeat yourself.

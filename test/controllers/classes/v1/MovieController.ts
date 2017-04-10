@@ -1,6 +1,7 @@
 import {Request, Response, NextFunction} from 'express';
-import {Get, Delete, Put} from "../../../../index";
+import {Get, Delete, Put, Resource} from "../../../../index";
 
+@Resource('/movies')
 export class MovieController {
 
   @Get('/:id')
