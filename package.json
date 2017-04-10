@@ -1,6 +1,6 @@
 {
   "name": "express-versioning",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Express middleware for resolving controllers with api versioning support.",
   "main": "index.js",
   "types": "index.d.ts",
