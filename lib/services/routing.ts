@@ -275,6 +275,7 @@ function processController(controller: any,
       Object
         .keys(_routeOptions)
         .map<IRouteHandlerOption>(key => _routeOptions[key])
+        // ensure that handlers with http method "head" comes first
         .sort((a, b) => {
           if (a.method === b.method) {
             return 0;
