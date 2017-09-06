@@ -13,7 +13,6 @@ import {IRouteHandlerOptions} from "../interfaces/IRouteHandlerOptions";
 export const VERSION_PLACEHOLDER = '__version__';
 
 export function createRouter(options: IInternalControllerOptions): Router {
-
   const router = Router();
   const data = resolve(options);
 
@@ -27,32 +26,31 @@ function resolve(options: IInternalControllerOptions,
                  path: string = options.path,
                  controllers: any = {},
                  route: string = '',
-                 routes: string[] = []): {controllers: any, routes: string[]} {
-
+                 routes: string[] = []): { controllers: any, routes: string[] } {
+  type NameInfo = { name: string; nameWithoutExtension: string };
+  const uniqueWithoutExtensionFilter = (nameInfo: NameInfo, index: number, arr: NameInfo[]) =>
+    arr.findIndex((_nameInfo: NameInfo) => nameInfo.nameWithoutExtension === _nameInfo.nameWithoutExtension) === index;
   let parentVersion: any;
 
   fs.readdirSync(path)
     .sort() // ensure that in case of version folders the order is considered
-    .forEach(name => {
-
-      const subpath = path + '/' + name;
+    .map(name => ({name, nameWithoutExtension: removeExtension(name)}))
+    .filter(uniqueWithoutExtensionFilter)
+    .forEach(({name, nameWithoutExtension}) => {
+      const fullPath = path + '/' + name;
       let _route = route;
 
-      if (fs.statSync(subpath).isDirectory()) {
-
+      if (fs.statSync(fullPath).isDirectory()) {
         let obj = {};
 
         if (options.versionPattern.test(name) || name === options.abstractDir) {
 
           if (parentVersion) {
-
             // link current version to parent version
             // via prototype chain
             // e.g. v2 -> v1
-
             obj = Object.create(parentVersion);
           }
-
           parentVersion = obj;
           _route = route + `/${VERSION_PLACEHOLDER}`;
         } else {
@@ -62,29 +60,23 @@ function resolve(options: IInternalControllerOptions,
             // link the current node to the existing one
             // e.g. v2.foo      -> v1.foo
             //      v2.foo.bar  -> v1.foo.bar
-
             obj = Object.create(controllers[name]);
           }
-
           _route = route + `/${name}`;
         }
 
         controllers[name] = obj;
-        resolve(options, subpath, obj, _route, routes);
+        resolve(options, fullPath, obj, _route, routes);
 
-      } else if (isJsFile(name)) {
-
-        const controllerName = removeExtension(name);
-        const module = require(subpath);
-        const controller = getController(module, controllerName);
-        const resourceName = getResourceName(options, controllerName, controller);
+      } else if (isJsOrTsFile(name)) {
+        const fullPathWithoutExtension = path + '/' + nameWithoutExtension;
+        const module = require(fullPathWithoutExtension);
+        const controller = getController(module, nameWithoutExtension);
+        const resourceName = getResourceName(options, nameWithoutExtension, controller);
 
         if (resourceName) {
-
           const finalRoute = route + `/${resourceName}`;
-
           controllers[resourceName] = controller;
-
           if (routes.indexOf(finalRoute) === -1) routes.push(finalRoute);
         }
       }
@@ -100,7 +92,7 @@ function resolve(options: IInternalControllerOptions,
  * Defines express routes
  */
 function defineRoutes(router: Router,
-                      options: IInternalControllerOptions, {routes, controllers}: {routes: string[], controllers: any}): Router {
+                      options: IInternalControllerOptions, {routes, controllers}: { routes: string[], controllers: any }): Router {
 
   routes.forEach(route => {
 
@@ -114,14 +106,12 @@ function defineRoutes(router: Router,
     let currentNode = node;
 
     nodeNames.reduce((leftNames, name) => {
-
       // leftNames represent node names after current node name:
       // so if "bar" is the current of ['foo', 'bar', 'baz', 'boo'],
       // the leftNames are ['baz', 'boo']
       leftNames.shift();
 
       if (name === VERSION_PLACEHOLDER) {
-
         // fetch all available versions in the current
         // node and process with left node names
         Object
@@ -140,16 +130,13 @@ function defineRoutes(router: Router,
               // because last name should always be the name of the resource,
               // we can finally resolve the route with a controller instance
               if (index === leftNames.length - 1 && currentInnerNode) {
-
                 processController(currentInnerNode, router, version, route, options);
               }
             });
           });
       } else if (currentNode) {
-
         currentNode = currentNode[name];
       }
-
       return leftNames;
     }, (<string[]> []).concat(nodeNames));
 
@@ -166,7 +153,10 @@ function defineRoutes(router: Router,
  */
 function removeExtension(filename: string): string {
 
-  return filename.replace('.js', '');
+  return filename
+    .replace(/\.js$/, '')
+    .replace(/\.ts$/, '')
+    ;
 }
 
 /**
@@ -175,14 +165,14 @@ function removeExtension(filename: string): string {
  * @param filename
  * @returns {boolean}
  */
-function isJsFile(filename: string): boolean {
-
-  return filename.slice(-3) === '.js';
+function isJsOrTsFile(filename: string): boolean {
+  const lastChars = filename.slice(-3);
+  return lastChars === '.js' || lastChars === '.ts';
 }
 
 function getResourceName(options: IInternalControllerOptions,
                          controllerName: string,
-                         controller: any): string|undefined {
+                         controller: any): string | undefined {
 
   // Try to retrieve resource name from meta data if resolveRouteHandler is true
   if (options.resolveRouteHandler && controller) {
@@ -210,7 +200,6 @@ function getController(module: any,
   const controller = module[controllerName] || module.default;
 
   if (!controller) {
-
     throw new Error(`No default export or no named export for file "${controllerName}" found ` +
       ` in module { ${Object.keys(module).join()} }`);
   }
@@ -236,17 +225,13 @@ function processController(controller: any,
   if (typeof controller === 'function') {
 
     if (typeof options.inject === 'function') {
-
       controllerInstance = options.inject(controller);
     } else if (typeof options.injector === 'object') {
-
       controllerInstance = options.injector.get(controller);
     } else {
-
       controllerInstance = new controller();
     }
   } else {
-
     controllerInstance = controller;
   }
 
@@ -261,14 +246,13 @@ function processController(controller: any,
   // route handlers by reflect meta data or trying to guess
   // it by target property keys
   if (options.resolveRouteHandler) {
-    let routeOptions: IRouteHandlerOptions|undefined = getRouteHandlerOptions(controllerPrototype);
+    let routeOptions: IRouteHandlerOptions | undefined = getRouteHandlerOptions(controllerPrototype);
 
     if (!routeOptions) {
       routeOptions = tryGuessingRouteHandlerOptionsByKeys(controllerPrototype);
     }
 
     if (routeOptions) {
-
       const _routeOptions: IRouteHandlerOptions = routeOptions;
       const rootPath = fullPath;
 
@@ -288,7 +272,6 @@ function processController(controller: any,
 
           if (implementations.indexOf(controllerPrototype) === -1 &&
             controllerPrototype.hasOwnProperty(propertyKey)) {
-
             throw new Error(`Accidentally overridden route handler "${propertyKey}". When overriding a ` +
               `route handler, the @OverrideRouteHandler annotation must be used. Annotate "${propertyKey}" ` +
               `with @OverrideRouteHandler or change method name.`);

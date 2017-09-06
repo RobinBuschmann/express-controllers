@@ -8,7 +8,6 @@ import {Router} from 'express';
 describe('integration', () => {
 
   describe('versions', () => {
-
     [
       {
         describe: 'classes',
@@ -94,14 +93,13 @@ describe('integration', () => {
               methods.forEach(([method, key, _versions]) => {
 
                 if (conditioner(v, _versions, method)) {
-                  _urls.push([method, `${url.replace(':id' as any, 1 as any).replace(':version', v)
-                    }`]);
+                  _urls.push([method, `${url.replace(':id' as any, 1 as any).replace(':version', v)}`]);
                 }
               });
             });
 
             return _urls;
-          }, []);
+          }, [] as Array<[string, string]>);
         }
 
 
@@ -116,9 +114,6 @@ describe('integration', () => {
               .map(([method, url]) =>
                 request(app)[method](url)
                   .expect(200)
-                  .catch(err => {
-                    const arr = [method, url];
-                  })
               )
           )
         );

@@ -5,7 +5,7 @@ import {OverrideRouteHandler} from "../../../../../../../index";
 export const users: any = Object.create(usersV1);
 
 OverrideRouteHandler(users, 'getUserPosts');
-users.getUserPosts = function (req: Request, res: Response, next: Function): any {
+users.getUserPosts = function (req: Request, res: Response, next: NextFunction): any {
 
   res.send('no class :)');
 };

@@ -21,7 +21,7 @@ documentation
 **/*.js
 **/*.js.map
 **/*.d.ts
-!lib/express-extensions.d.ts
+!lib/declarations/express-extensions.d.ts
 !lib/annotations/method-annotations.js
 
 # Elastic Beanstalk Files
