@@ -7,7 +7,6 @@
   "scripts": {
     "build-scripts": "tsc --project build",
     "build": "npm run build-scripts && npm run generate && tsc",
-    "build-publish": "npm run build-scripts && npm run generate && tsc --p tsconfig.publish.json",
     "build-tests": "tsc --project test",
     "remove-d": "git clean -xf",
     "generate": "node ./build/declaration-generator.js",
